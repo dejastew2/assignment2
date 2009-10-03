@@ -37,6 +37,8 @@ int main(int argc, char *argv[]) {
 		} else {
 			printf("Argument %d: %s\n", i, argv[i]);
 		}
+		
+		free(file_name);
 	}
 	
 	printf("N value is currently: %d\n", n_value);
