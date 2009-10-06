@@ -7,7 +7,7 @@ LD = gcc
 LDFLAGS = 
 
 filereadtest: filereadtest.c
-	$(CC) $(CFLAGS) -c -o filereadtest filereadtest.c
+	$(CC) $(CFLAGS) -o filereadtest filereadtest.c
 
 test: filereadtest
 	echo "Testing filereadtest..."
