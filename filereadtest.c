@@ -9,8 +9,9 @@ unsigned hashkr(char *token);
 struct listnode *locate(char *word);
 struct listnode *insert(char *word);
 struct listnode *get_largest_tf(void);
+void delete(struct listnode *toremove);
+void print_hash_table(void);
 void *safe_malloc(size_t size);
-/*void *safe_free(void *fname);*/
 
 struct listnode {
 	struct listnode *next;
@@ -25,7 +26,6 @@ int main(int argc, char *argv[]) {
 	int reset_n_value = 0;	/* Boolean to catch -n flag */
 	int n_value = 10;			/* Number of words to print */
 	int i;
-	int j;
 	char c;
 	char *foundword;
 	int foundnum;
@@ -97,21 +97,16 @@ int main(int argc, char *argv[]) {
 		free(file_name);
 	}
 
-	printf("Before\n");
-	curnode = get_largest_tf();
-	printf("After\n");
-	if (curnode != NULL) {
-		if (curnode->word != NULL) {
+	print_hash_table();
+	for (i = 0; i < n_value; i ++) {
+		curnode = get_largest_tf();
+		if (curnode != NULL) {
 			foundword = curnode->word;
-			/*printf("Word exists\n");*/
-		}
-		if (curnode->timesfound != NULL) {
 			foundnum = *(curnode->timesfound);
-			/*printf("Num exists\n");*/
+			printf("%s %d\n", foundword, foundnum);
+			delete(curnode);
 		}
-		/*printf("%s %d\n", foundword, foundnum);*/
 	}
-	printf("Much later\n");
 
 	return 0;
 }
@@ -154,7 +149,7 @@ struct listnode *insert(char *word) {
 		*(p->timesfound) = 1;
 		hashtable[wordhash] = p;
 	} else {
-		*(p->timesfound) ++;
+		*(p->timesfound) += 1;
 	}
 	return p;
 }
@@ -164,24 +159,64 @@ struct listnode *get_largest_tf(void) {
 	struct listnode *biggest;
 
 	int i;
+	biggest = hashtable[0];
 	for (i = 0; i < HASHSIZE; i ++) {
-
 		for (p = hashtable[i]; p != NULL; p = p->next) {
 			if (biggest != NULL) {
 				if (p->timesfound != NULL) {
-					/*
 					if (*(p->timesfound) > *(biggest->timesfound)) {
 						biggest = p;
 					}
-					*/
 				}
 			} else {
 				biggest = p;
 			}
 		}
-
 	}
+
 	return biggest;
+}
+
+void delete(struct listnode *toremove) {
+	char *rword;
+	struct listnode *curnode;
+	struct listnode *lastnode;
+	
+	if (toremove) {
+		if (toremove->word) {
+			rword = toremove->word;
+
+			lastnode = hashtable[hashkr(rword)];
+			for (curnode = hashtable[hashkr(rword)]; curnode != NULL; curnode = curnode->next) {
+				if (toremove == curnode) {
+					if (lastnode != curnode) {
+						lastnode->next = curnode->next;
+					} else {
+						hashtable[hashkr(rword)] = NULL;
+					}
+					free(curnode);
+				} else {
+					lastnode = curnode;
+				}
+			}			
+		}
+	}
+}
+
+void print_hash_table(void) {
+	struct listnode *p;
+	char *myword;
+	int mynum;
+	unsigned myhash;
+	int i;
+	for (i = 0; i < HASHSIZE; i ++) {
+		for (p = hashtable[i]; p != NULL; p = p->next) {
+			myword = p->word;
+			mynum = *(p->timesfound);
+			myhash = hashkr(myword);
+			printf("%s %d %d\n", myword, mynum, myhash);
+		}
+	}
 }
 
 void *safe_malloc(size_t size) {
@@ -195,15 +230,3 @@ void *safe_malloc(size_t size) {
 	}
 }
 
-/*
-void *safe_free(void *fname) {
-	void* ret;
-	ret = free(fname);
-	if (ret != NULL) {
-		return ret;
-	} else {
-		perror("safe_free");
-		exit(1);
-	}
-}
-*/
