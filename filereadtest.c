@@ -20,6 +20,7 @@ struct listnode {
 };
 
 static struct listnode *hashtable[HASHSIZE];
+static int totalwords;
 
 int main(int argc, char *argv[]) {
 
@@ -30,6 +31,8 @@ int main(int argc, char *argv[]) {
 	char *foundword;
 	int foundnum;
 	struct listnode *curnode;
+
+	totalwords = 0;
 
 	/* Loops through each argument */
 	for (i = 1; i < argc; i ++) {
@@ -97,13 +100,17 @@ int main(int argc, char *argv[]) {
 		free(file_name);
 	}
 
+	/*
 	print_hash_table();
+	printf("\n");
+	*/
+	printf("The top %d words (out of %d) are:\n", n_value, totalwords);
 	for (i = 0; i < n_value; i ++) {
 		curnode = get_largest_tf();
 		if (curnode != NULL) {
 			foundword = curnode->word;
 			foundnum = *(curnode->timesfound);
-			printf("%s %d\n", foundword, foundnum);
+			printf("%d %s\n", foundnum, foundword);
 			delete(curnode);
 		}
 	}
@@ -148,6 +155,7 @@ struct listnode *insert(char *word) {
 		p->timesfound = (int*)safe_malloc(sizeof(wordhash));
 		*(p->timesfound) = 1;
 		hashtable[wordhash] = p;
+		totalwords += 1;
 	} else {
 		*(p->timesfound) += 1;
 	}
@@ -195,6 +203,7 @@ void delete(struct listnode *toremove) {
 						hashtable[hashkr(rword)] = NULL;
 					}
 					free(curnode);
+					break;
 				} else {
 					lastnode = curnode;
 				}
