@@ -6,14 +6,23 @@ LD = gcc
 
 LDFLAGS = 
 
-filereadtest: filereadtest.c
-	$(CC) $(CFLAGS) -o filereadtest filereadtest.c
+fw: main.o hashtable.o safefunctions.o
+	$(CC) $(CFLAGS) -o fw main.o hashtable.o safefunctions.o
 
-debug: filereadtest.c
-	$(CC) $(CFLAGS) -g -o filereadtest filereadtest.c
-	gdb filereadtest
+safefunctions.o: safefunctions.c
+	$(CC) $(CFLAGS) -c -o safefunctions.o safefunctions.c
 
-test: filereadtest
-	echo "Testing filereadtest..."
-	./filereadtest file1 file2
+hashtable.o: hashtable.c
+	$(CC) $(CFLAGS) -c -o hashtable.o hashtable.c
+
+main.o: main.c
+	$(CC) $(CFLAGS) -c -o main.o main.c
+
+debug: main.c
+	$(CC) $(CFLAGS) -g -o fw main.c
+	gdb fw
+
+test: fw
+	echo "Testing fw..."
+	./fw file1 file2
 	echo "Done"
