@@ -11,6 +11,7 @@ struct listnode *insert(char *word);
 struct listnode *get_largest_tf(void);
 void delete(struct listnode *toremove);
 void print_hash_table(void);
+void print_node(struct listnode *toprint);
 void *safe_malloc(size_t size);
 
 struct listnode {
@@ -28,8 +29,6 @@ int main(int argc, char *argv[]) {
 	int n_value = 10;			/* Number of words to print */
 	int i;
 	char c;
-	char *foundword;
-	int foundnum;
 	struct listnode *curnode;
 
 	totalwords = 0;
@@ -108,9 +107,7 @@ int main(int argc, char *argv[]) {
 	for (i = 0; i < n_value; i ++) {
 		curnode = get_largest_tf();
 		if (curnode != NULL) {
-			foundword = curnode->word;
-			foundnum = *(curnode->timesfound);
-			printf("%d %s\n", foundnum, foundword);
+			print_node(curnode);
 			delete(curnode);
 		}
 	}
@@ -189,7 +186,7 @@ void delete(struct listnode *toremove) {
 	char *rword;
 	struct listnode *curnode;
 	struct listnode *lastnode;
-	
+
 	if (toremove) {
 		if (toremove->word) {
 			rword = toremove->word;
@@ -207,7 +204,7 @@ void delete(struct listnode *toremove) {
 				} else {
 					lastnode = curnode;
 				}
-			}			
+			}
 		}
 	}
 }
@@ -226,6 +223,24 @@ void print_hash_table(void) {
 			printf("%s %d %d\n", myword, mynum, myhash);
 		}
 	}
+}
+
+void print_node(struct listnode *toprint) {
+	char *foundword = toprint->word;
+	int foundnum = *(toprint->timesfound);
+	int k;
+	int digit;
+
+	for (k = 100000000; k > 0; k /= 10) {
+		if (k > foundnum) {
+			printf(" ");
+		} else {
+			digit = (foundnum % (k * 10)) / k;
+			printf("%d", digit);
+		}
+	}
+
+	printf(" %s\n", foundword);
 }
 
 void *safe_malloc(size_t size) {
