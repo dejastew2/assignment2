@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
+
+#define BLOCKSIZE 10
 
 void *safe_malloc(size_t size) {
 	void* ret;
@@ -14,37 +17,48 @@ void *safe_malloc(size_t size) {
 
 char *get_next_word(FILE *pfile) {
 	char *myword;
+	char c;
+	int pos = 0;
+	int totalsize = BLOCKSIZE;
 	int startword = 0;
 	
+	/* If the passed file exists */
 	if (pfile) {
-		while((c = getc(file_pointer)) != EOF) {
-			/* If we've hit a string of alphabetic chars */
-			if (startword) {
-				if (isalpha(c)) {
-					/* Add lowercase char to word */
-				} else {
-					break;
-				}
-			} else {
-				if (isalpha(c)) {
-					/* Add lowercase char to word */
+		
+		myword = (char *)safe_malloc(BLOCKSIZE);
+		
+		while((c = getc(pfile)) != EOF) {
+			
+			/* If we've hit a char, flag it and add it */
+			if (isalpha(c)) {
+				if (!startword) {
 					startword = 1;
+				}
+				
+				/* Add lowercase char to word */
+				if (pos >= totalsize) {
+					totalsize += BLOCKSIZE;
+					myword = (char *)realloc(myword, totalsize);
+				}
+				myword[pos] = tolower(c);
+				pos ++;
+				
+			/* If we have a non-alphabetic char */
+			} else {
+				/* If we just hit the end of a word, break loop */
+				if (startword) {
+					if (pos >= totalsize) {
+						myword = (char *)realloc(myword, totalsize);
+					}
+					myword[pos] = '\0';
+					ungetc(c, pfile);
+					break;
 				}
 			}
 			
-			if (isalpha(c)) {
-				myWord[cPos] = tolower(c);
-				isLastChar = 1;
-				cPos ++;
-			} else {
-				if (isLastChar == 1) {
-					myWord[cPos] = '\0';
-					insert(myWord, ptotalwords);
-				}
-				isLastChar = 0;
-				cPos = 0;
-			}
-		}		
+		}
+		
+	/* If the passed file is invalid */
 	} else {
 		myword = NULL;
 	}

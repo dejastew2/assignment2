@@ -60,23 +60,12 @@ int main(int argc, char *argv[]) {
 			/* If file was successfully opened */
 			if (file_pointer != NULL) {
 
-				char myWord[20];
-				int cPos = 0;
-				int isLastChar = 0;
+				char *curword;
 
 				while((c = getc(file_pointer)) != EOF) {
-					if (isalpha(c)) {
-						myWord[cPos] = tolower(c);
-						isLastChar = 1;
-						cPos ++;
-					} else {
-						if (isLastChar == 1) {
-							myWord[cPos] = '\0';
-							insert(myWord, ptotalwords);
-						}
-						isLastChar = 0;
-						cPos = 0;
-					}
+					ungetc(c, file_pointer);
+					curword = get_next_word(file_pointer);
+					insert(curword, ptotalwords);
 				}
 				fclose(file_pointer);
 			/* If file was not successfully opened, print error */
