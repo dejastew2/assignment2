@@ -40,21 +40,25 @@ struct listnode *insert(char *word, int *curwords) {
 	struct listnode *p;
 	int wordhash;
 
-	if ((p = locate(word)) == NULL) {
-		p = (struct listnode*)safe_malloc(sizeof(*p));
-		p->word = (char*)safe_malloc(strlen(word) + 1);
-		strcpy(p->word, word);
-		if (p->word == NULL) {
-			return NULL;
+	if (word != NULL) {
+		if ((p = locate(word)) == NULL) {
+			p = (struct listnode*)safe_malloc(sizeof(*p));
+			p->word = (char*)safe_malloc(strlen(word) + 1);
+			strcpy(p->word, word);
+			if (p->word == NULL) {
+				return NULL;
+			}
+			wordhash = hashkr(word);
+			p->next = hashtable[wordhash];
+			p->timesfound = (int*)safe_malloc(sizeof(wordhash));
+			*(p->timesfound) = 1;
+			hashtable[wordhash] = p;
+			*curwords += 1;
+		} else {
+			*(p->timesfound) += 1;
 		}
-		wordhash = hashkr(word);
-		p->next = hashtable[wordhash];
-		p->timesfound = (int*)safe_malloc(sizeof(wordhash));
-		*(p->timesfound) = 1;
-		hashtable[wordhash] = p;
-		*curwords += 1;
 	} else {
-		*(p->timesfound) += 1;
+		p = NULL;
 	}
 	return p;
 }
