@@ -16,6 +16,17 @@ void *safe_malloc(size_t size) {
 	}
 }
 
+void *safe_realloc(void *p, size_t size) {
+	void* ret;
+	ret = realloc(p, size);
+	if (ret != NULL) {
+		return ret;
+	} else {
+		perror("safe_realloc");
+		exit(1);
+	}
+}
+
 char *get_next_word(FILE *pfile) {
 	char *myword;
 	char c;
@@ -36,11 +47,12 @@ char *get_next_word(FILE *pfile) {
 					startword = 1;
 				}
 
-				/* Add lowercase char to word */
+				/* If current string is too small, realloc */
 				if (pos >= totalsize) {
 					totalsize += BLOCKSIZE;
-					myword = (char *)realloc(myword, totalsize);
+					myword = (char *)safe_realloc(myword, totalsize);
 				}
+				/* Add lowercase char to word */
 				myword[pos] = tolower(c);
 				pos ++;
 
@@ -48,8 +60,9 @@ char *get_next_word(FILE *pfile) {
 			} else {
 				/* If we just hit the end of a word, break loop */
 				if (startword) {
+					/* Checks to see if string is just long enough */
 					if (pos >= totalsize) {
-						myword = (char *)realloc(myword, totalsize);
+						myword = (char *)safe_realloc(myword, totalsize);
 					}
 					myword[pos] = '\0';
 					ungetc(c, pfile);
@@ -64,6 +77,7 @@ char *get_next_word(FILE *pfile) {
 		myword = NULL;
 	}
 
+	/* If word is empty (ie at EOF), return NULL */
 	if(strlen(myword) == 0) {
 		free(myword);
 		myword = NULL;

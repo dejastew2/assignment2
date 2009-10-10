@@ -62,12 +62,14 @@ int main(int argc, char *argv[]) {
 
 				char *curword;
 
+				/* As long as we aren't EOF, get next word and insert it */
 				while((c = getc(file_pointer)) != EOF) {
 					ungetc(c, file_pointer);
 					curword = get_next_word(file_pointer);
 					insert(curword, ptotalwords);
 				}
 				fclose(file_pointer);
+
 			/* If file was not successfully opened, print error */
 			} else {
 				perror(file_name);
@@ -80,7 +82,7 @@ int main(int argc, char *argv[]) {
 
 	/* Prints summary line */
 	printf("The top %d words (out of %d) are:\n", n_value, totalwords);
-	
+
 	/* Loops through N times printing the largest node, then removing it */
 	for (i = 0; i < n_value; i ++) {
 		curnode = get_largest_tf();
