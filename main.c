@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+int add_to_hash_table(FILE *pfile);
+
 struct listnode {
 	struct listnode *next;
 	char *word;
@@ -15,13 +17,12 @@ struct listnode {
 int main(int argc, char *argv[]) {
 
 	int reset_n_value = 0;	/* Boolean to catch -n flag */
+	int passed_files = 0;	/* Boolean to switch to stdin */
 	int n_value = 10;		/* Number of words to print */
 	int i;
-	char c;
 	struct listnode *curnode;
 
 	int totalwords = 0;
-	int *ptotalwords = &totalwords;
 
 	/* Loops through each argument */
 	for (i = 1; i < argc; i ++) {
@@ -59,16 +60,12 @@ int main(int argc, char *argv[]) {
 
 			/* If file was successfully opened */
 			if (file_pointer != NULL) {
-
-				char *curword;
-
-				/* As long as we aren't EOF, get next word and insert it */
-				while((c = getc(file_pointer)) != EOF) {
-					ungetc(c, file_pointer);
-					curword = get_next_word(file_pointer);
-					insert(curword, ptotalwords);
-				}
+				totalwords += add_to_hash_table(file_pointer);
 				fclose(file_pointer);
+
+				if (passed_files == 0) {
+					passed_files = 1;
+				}
 
 			/* If file was not successfully opened, print error */
 			} else {
@@ -78,6 +75,10 @@ int main(int argc, char *argv[]) {
 		}
 
 		free(file_name);
+	}
+
+	if (passed_files == 0) {
+		totalwords += add_to_hash_table(stdin);
 	}
 
 	/* Prints summary line */
@@ -93,4 +94,20 @@ int main(int argc, char *argv[]) {
 	}
 
 	return 0;
+}
+
+int add_to_hash_table(FILE *pfile) {
+	char *curword;
+	char c;
+	int addednodes = 0;
+	int *paddednodes = &addednodes;
+
+	/* As long as we aren't EOF, get next word and insert it */
+	while((c = getc(pfile)) != EOF) {
+		ungetc(c, pfile);
+		curword = get_next_word(pfile);
+		insert(curword, paddednodes);
+	}
+
+	return addednodes;
 }
